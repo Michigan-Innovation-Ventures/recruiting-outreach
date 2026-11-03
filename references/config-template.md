@@ -1,103 +1,92 @@
 # Recruiting Outreach Configuration
 
-Copy this template into your own private project/folder and complete every required field. Leave no bracketed placeholders. Use `none` or `[]` for unused lists. Keep the shared skill unchanged. Supply your completed configuration when invoking Recruiting Outreach.
+Copy this file to your private destination (outside the skill) and complete every field. Bracketed placeholders count as missing. Use `none` or `[]` only where the field says it is allowed. Never commit a completed copy to the shared skill.
 
-## Run identity and permissions
+## 1. Campaign
 
-- Configuration ID: [unique campaign label]
-- Create Gmail drafts: [yes or no]
-- Paid lookup spending authorized: [yes or no; no when tool is none]
+- configuration_id: [unique ID, for example `fall-2026-consulting`]
+- draft_target: [positive integer, default 50 new cold drafts per run]
+- draft_creation_authorized: [yes or no. Must be yes to create drafts]
 
-Authorize drafts only. The skill never sends mail or schedules actual sends. Recurring automation requires separate setup.
+## 2. Identity (used in drafts)
 
-## Me
+- full_name: [First Last]
+- first_name: [First]
+- school: [University of Michigan]
+- standing: [Sophomore, Junior, and so on. Used in the subject and body]
+- degree_and_year: [for example BSE Computer Science, Class of 2028]
+- focus: [major or field as it should read in "studying ..."]
+- university_and_city: [University of Michigan, Ann Arbor, MI]
+- email: [school email]
+- phone: [phone number]
+- linkedin_url: [full LinkedIn profile URL]
+- resume_file: [path to resume file the draft tool can attach, or `none`]
+- resume_link: [public resume URL, or `none`]
 
-- Full name: [full name]
-- Email: [email]
-- Phone: [phone]
-- School: [university and school within it]
-- Degree and year: [degree and graduation year]
-- Standing: [current standing, such as third-year undergraduate]
-- Focus: [major, concentration, minors]
-- University and city: [university, city]
-- LinkedIn URL: [full profile URL]
+## 3. Run settings
 
-## Output
+- report_destination: [private folder or connector location the run can read and write]
+- time_zone: [IANA zone, for example America/New_York]
+- schedule_start_time: [local time for first proposed slot, for example 09:00]
 
-- Report destination: [private project/folder path or supported destination link]
-- Send-schedule time zone: [IANA zone, such as America/New_York]
-- Schedule start time: [local time, such as 09:00]
+## 4. Targets
 
-## Lookup
+One entry per exact firm, program, year, practice, and location. Priority 1 runs before priority 2.
 
-- Address-verification tool: [tool name or none]
-- Maximum credits per run: [nonnegative integer; 0 when none]
-- Current credit balance: [nonnegative number or not applicable when none]
-- Balance checked on: [YYYY-MM-DD or not applicable when none]
-- Warn below: [nonnegative threshold; 0 when none]
+```text
+- id: [short unique ID]
+  priority: [1 or 2]
+  firm: [exact firm name]
+  org_type: [large firm or startup]
+  program: [exact program, for example Summer Analyst]
+  year: [program year]
+  practice: [practice or team, or `any`]
+  location: [city or office]
+  cumulative_contact_cap: [positive integer of distinct people across all prior and new cold outreach]
+```
 
-Connect the selected tool before running it. It must return an explicit verification status. Unknown patterns never authorize guessing an address.
+backfill_targets: [list in the same format as above with priority 3, or `[]`. Used only after priority 1 and 2 are exhausted]
 
-## Contact volume
+## 5. Domains
 
-- Cumulative cap per exact role/program/practice and location: [positive integer]
+Confirmed firm-to-domain mappings. Include documented legacy domains after acquisitions. Unresolved mappings are skipped.
 
-Count distinct prior cold contacts and active cold drafts for this configuration. Warm replies do not consume new cold slots.
+```text
+- firm: [exact firm name]
+  domains: [domain one, domain two]
+```
 
-## Exclusions
+excluded_domains: [domains never to contact, including warm replies, or `[]`]
 
-Use `[]` if empty. Exclusions include subdomains and apply to warm contacts too.
+## 6. Seed contacts and history
 
-| Domain | Reason |
-| --- | --- |
-| [domain] | [reason] |
+- seed_do_not_contact: [addresses to never cold-email, or `[]`]
+- prior_replied_bounced_chat_completed: [addresses with status, or `[]`]
+- known_warm_contacts: [addresses or domains to check for warm threads, or `[]`]
 
-## Target roles: priority 1
+## 7. Email lookup
 
-Use stable target IDs. Name the exact program, year, location, and practice if relevant. Use `[]` for an empty list; at least one priority list must contain a target.
+- lookup_tool: [tool name, or `none`]
+- per_run_max_spend: [credits or dollars]
+- balance_checked: [amount and date]
+- warning_threshold: [balance at which the report must warn prominently]
 
-| Target ID | Firm | Exact program and year | Location | Practice or narrowing notes |
-| --- | --- | --- | --- | --- |
-| [P1-01] | [firm] | [program/year] | [city/office] | [undergraduate vs MBA, practice, or none] |
+## 8. Address ledger
 
-## Target roles: priority 2
+Start new campaigns with unknown patterns. Do not copy another campaign's ledger.
 
-| Target ID | Firm | Exact program and year | Location | Practice or narrowing notes |
-| --- | --- | --- | --- | --- |
-| [P2-01] | [firm] | [program/year] | [city/office] | [notes or none] |
+```text
+- domain: [domain]
+  rule: [observed pattern, or `unknown`]
+  evidence: [exact address, source, date]
+  safe_to_construct: [yes or no]
+  catch_all: [yes, no, or unknown]
+  hard_bounces: [count observed, or `unknown`]
+```
 
-## Target domains
+- historical_hard_bounce_total: [number, or `unknown`]
 
-Map every target firm. Include confirmed employee email domains and legacy aliases. Supply reliable evidence or let setup verify the mapping before drafting. Never guess from the firm name.
+## 9. Carryover
 
-| Firm | Email domain(s) | Evidence/source and date |
-| --- | --- | --- |
-| [firm] | [comma-separated domains] | [source/date] |
-
-## Seed list
-
-List people already contacted who might not appear in sent mail. Use `[]` if empty.
-
-| Name | Email | Firm | Status and date if known |
-| --- | --- | --- | --- |
-| [name] | [address] | [firm] | [sent/replied/bounced/chat-completed, date] |
-
-## Known warm contacts
-
-Include former target firms when follow-up is useful. Current threads take precedence. Use `[]` if empty.
-
-| Name | Firm | Email or domain | Outstanding offer/action |
-| --- | --- | --- | --- |
-| [name] | [firm] | [address/domain] | [offer or next step] |
-
-## Initial address-pattern evidence
-
-Use `[]` for no evidence. Do not copy another user's patterns or bounce totals. The skill maintains later findings in private run reports.
-
-- Historical constructed-address hard-bounce total: [known number with evidence, or unknown]
-
-| Domain | Policy: unknown / verify-only / safe-to-construct / do-not-construct | Exact rule | Examples and provenance | Catch-all evidence | Constructed-address hard bounces and evidence |
-| --- | --- | --- | --- | --- | --- |
-| [domain] | [policy] | [rule or unknown] | [verified/published/inbound source/date, or none] | [source/date or unknown] | [count/source/date or unknown] |
-
-Mark safe-to-construct only when you deliberately accept an evidenced rule. A conflicting rule or constructed-address hard bounce stops construction. Catch-all domains require verified or published addresses.
+- exhausted_searches: [target ID, search URL, date, reason, or `[]`]
+- unknown_domain_holds: [domain and last actual send time, or `[]`]

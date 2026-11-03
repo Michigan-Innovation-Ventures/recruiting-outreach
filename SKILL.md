@@ -1,31 +1,68 @@
 ---
 name: recruiting-outreach
-description: Prepare recruiting networking outreach using a user configuration, Gmail history, LinkedIn profiles, and optional email verification. Use for warm-thread follow-ups, eligible contact sourcing, personalized Gmail drafts, duplicate prevention, proposed send schedules, and repeatable outreach run reports. Never send mail or track applications.
+description: Prepare recruiting networking outreach using a user configuration, Gmail history, LinkedIn profiles, and optional email verification. Runs autonomously from preflight to a drafting quota (default 50 cold drafts) with no mid-run approvals. Use for warm-thread follow-ups, eligible contact sourcing, personalized Gmail drafts, duplicate prevention, proposed send schedules, and repeatable outreach run reports. Never send mail or track applications.
 ---
 
 # Recruiting Outreach
 
 Prepare networking drafts and a proposed send schedule. Work warm threads before cold sourcing. Never send mail, schedule actual sends, or track application deadlines or status.
 
+## 0. Run objective, autonomy, and preflight
+
+Objective: end the run with `draft_target` new cold drafts (default 50) created and confirmed in Gmail, plus every justified warm reply. The owner reviews the drafts afterward. Count only drafts confirmed by a successful create result or a follow-up search.
+
+Autonomy contract. After preflight passes, run start to finish in one pass.
+
+- Do not ask the owner to approve, verify, or confirm anything mid-run. Do not pause for progress check-ins or intermediate summaries.
+- Treat the configuration as standing authorization for drafting, lookups within the per-run maximum and balance, and browsing needed for sourcing.
+- Resolve every ambiguity by the skill's own rules. When a candidate is uncertain, skip it and take the next one. Never ask the owner to adjudicate a candidate.
+- Do not end the turn while the quota is unmet and sourcing capacity remains. End only on a stop condition in Step 4.
+- Respect mandatory platform or tool confirmations that cannot be bypassed. Report each one that blocked work.
+
+First-run setup. Look for `references/user-config.md` in this skill folder, then for a configuration the owner names. If neither exists, this is a first run.
+
+1. Do not run anything yet. Send one message with every setup question from [references/config-template.md](references/config-template.md), grouped by section, with defaults noted (for example `draft_target` 50, lookup `none`). Where a tappable-choice tool exists, use it only for closed choices such as lookup tool and org type. Ask everything in that one message, never one question at a time.
+2. Take answers only from the owner. Never fill fields from examples, other campaigns, or assumptions.
+3. If answers are incomplete, send one follow-up listing only the missing fields. Do not start the run until Step 1 validation passes.
+4. Save the completed configuration to `references/user-config.md`, following the template's structure. If the skill folder is not writable, save it to the owner's private destination and tell them the path so later runs can load it. Do not save secrets, passwords, or payment details.
+5. Tell the owner once where the file was saved, and that this skill copy now holds their personal data and must not be shared. Then continue straight into preflight.
+
+Later runs. Load the saved configuration and do not re-ask what it already holds. Ask only for fields that are stale or missing, such as a lookup balance past its checked date, and fold those into the single preflight message. If the owner says to update their configuration, edit only the named fields in the saved file and keep the rest. Per-run results, address ledger changes, and carryover go in run reports (Step 8), not the saved configuration.
+
+Preflight. Complete all of these once, before any mutation or paid lookup. In interactive setup, collect every missing item in a single message.
+
+1. Validate the configuration (Step 1).
+2. Prove tool access with real calls: a scoped Gmail search, a draft list, and draft-creation capability; a LinkedIn people search and one full profile load while signed in; the lookup tool's balance call if enabled.
+3. Capacity check: sum remaining cold capacity across all targets (cap minus prior distinct contacts minus active cold drafts). If the sum is below `draft_target`, state the shortfall now and run anyway with what exists. Suggest the owner add targets or raise caps for the next run.
+4. Budget check: estimate lookups needed as `draft_target` divided by an expected verified-address yield, using the last report's observed yield or 0.5 if none. If the per-run maximum or balance cannot cover that, state the expected shortfall and proceed within budget.
+5. Lookup `none` check: if the lookup tool is `none`, warn that unknown or non-constructible domains cap output (Step 5) and the quota will likely fall short.
+6. Remind the owner once, in the preflight message only, to set the Gmail, LinkedIn, and lookup connectors to always allow, so per-call permission prompts do not stall the run.
+
+If preflight finds a problem only the owner can fix (missing config field, signed-out LinkedIn, no draft access), report every problem together and stop before any spending or drafting. This is the only planned stop. When the run is unattended, save a blocked report instead.
+
+Checkpointing. Append to the day's report after every 10 confirmed drafts and after the warm-thread pass: draft IDs, contact ledger rows, pool state, and credits spent. A rerun on the same date resumes from that report, counts its confirmed drafts toward the quota, and never recreates them.
+
 ## 1. Load configuration and state
 
-Read the explicitly supplied configuration and its latest run report. For first-time setup, provide [references/config-template.md](references/config-template.md) for the user to copy and complete. Keep each user's identity, permissions, targets, and history separate. Never fill personal fields from another configuration or examples.
+Read the saved configuration (`references/user-config.md` or the one the owner names) and its latest run report. For first-time setup, follow First-run setup in Step 0 using [references/config-template.md](references/config-template.md). Keep each user's identity, permissions, targets, and history separate. Never fill personal fields from another configuration or examples.
 
-Keep the shared skill and template free of real personal data. Store completed configurations and run reports in the user's designated private destination, outside this skill. Require a configuration ID so multiple campaigns cannot mix.
+Keep `references/config-template.md` blank and free of real personal data. The completed configuration lives in `references/user-config.md`, which makes this skill copy personal. Never distribute a skill copy that contains it. Store run reports in the owner's designated private destination, outside this skill. Require a configuration ID so multiple campaigns cannot mix.
 
 Validate required fields before external mutations or paid lookups. Treat bracketed placeholders as missing. Accept explicit `none` or `[]` only where allowed. Require:
 
 - Identity, school, degree/year, standing, focus, university/city, email, phone, and LinkedIn URL.
 - A readable/writable report destination, configuration ID, IANA time zone, and local schedule start time.
 - At least one exact firm/program/year/location target, confirmed firm-to-domain mappings, and a positive contact cap.
-- A lookup tool choice and, if enabled, explicit spending authorization, a per-run maximum, checked balance/date, and warning threshold.
+- A lookup tool choice and, if enabled, a per-run maximum, checked balance/date, and warning threshold.
 - Explicit draft-creation authorization and explicit empty values for unused lists.
+- A resume file or `resume_link`, or an explicit `none`.
+- `draft_target` (positive integer, default 50) and optional `backfill_targets` (a priority 3 list of exact firm/program/year/location entries, or `[]`) that the run may use only after priority 1 and 2 are exhausted.
 
 If configuration is incomplete, list missing fields and create no drafts or paid lookups. During interactive setup, ask for missing values together. In an unattended run, save a blocked report if a destination is available. Never invent settings to keep running.
 
 Discover current tools and schemas. Do not hardcode account-specific connector IDs or invent parameters. Prefer service-specific connectors. Use a LinkedIn connector if it provides full profiles and adequate search coverage; use permitted browser interaction for capabilities it lacks. Follow environment browser/authentication rules. If required fallback approval is unavailable, report the block and continue independent work.
 
-Proceed within explicit configuration authorizations without routine reconfirmation. Respect mandatory tool confirmations and platform requirements. If paid authorization is missing or a mandatory confirmation cannot complete, skip spending and report the block. Never buy credits, upgrade plans, or exceed budget or known balance.
+Proceed within explicit configuration authorizations without routine reconfirmation, per Step 0. Respect mandatory tool confirmations and platform requirements. If a mandatory confirmation cannot complete, skip spending and report the block. Never buy credits, upgrade plans, or exceed budget or known balance.
 
 Use the configured zone for run dates and tomorrow's date. A send schedule is a report only. Creating or invoking this skill does not establish a recurring automation.
 
@@ -80,9 +117,21 @@ Put unanswered introduction/referral offers first in the report. List every plac
 
 ## 4. Apply caps and source eligible contacts
 
-Work priority 1 before priority 2. Treat each exact program/year/practice/location combination separately. Apply the cumulative cap to distinct people across this configuration's prior cold sends, active cold drafts, and new cold drafts. Do not double-count a person represented in mail and history. Warm replies do not consume new cold slots.
+Work priority 1 before priority 2, then `backfill_targets`. Treat each exact program/year/practice/location combination separately. Apply the cumulative cap to distinct people across this configuration's prior cold sends, active cold drafts, and new cold drafts. Do not double-count a person represented in mail and history. Warm replies do not consume new cold slots.
 
 If attribution or counts are unknown, report that and do not claim capacity or create more cold drafts for that target. Do not count general firm employees against a practice-specific cap without evidence. Read exhausted-search carryover notes before repeating searches; retry when targets or evidence materially change. Explicitly report every at-cap, exhausted, blocked, and zero-result target.
+
+### Source to quota
+
+Run drafting as a loop until the quota is met, not as one sourcing pass.
+
+1. Over-source. Build a candidate pool of roughly `draft_target` divided by expected yield (0.5 if unknown), spread across targets by remaining capacity. Keep the pool ordered by priority and alumni strength.
+2. Process candidates in batches of 10. For each: verify eligibility, establish an address (Step 5), write and create the draft (Step 6). On any failure, log the reason and take the next candidate. Never stall on one person.
+3. After each batch, recompute confirmed drafts against the quota and the observed yield. Refill the pool if the remaining pool cannot cover the remaining quota at observed yield.
+4. When the pool empties, widen within authorization, in this order: search result pages 2 and 3; alternate title and function keywords for the same practice; alumni and shared-school filters; other locations only if listed in the configuration; the next priority tier; `backfill_targets`.
+5. Never widen by adding firms or locations not in the configuration, raising a cap, loosening any eligibility rule below, guessing addresses, or overspending.
+
+Stop conditions, any one of which ends sourcing: the quota is met; every target is at cap, exhausted, or blocked; budget or balance is exhausted and no verified or published addresses remain; LinkedIn is signed out; Gmail drafting is unavailable. Then finish warm-thread work, the schedule, and the report. If the quota is unmet, Step 8 must give the exact shortfall and cause.
 
 Use LinkedIn people search and full profiles. Check result pages 2 and 3 when available. Record productive URLs and search dates; report unavailable pagination. Use snippets only for discovery, never final employment or personalization claims.
 
@@ -108,7 +157,7 @@ Read this configuration's address ledger and bounce evidence. Start a new config
 
 Confirm the actual email domain, including documented legacy domains after acquisitions. Update mappings and rerun duplicate searches before using a newly discovered domain. Skip unresolved firm/domain mappings.
 
-### Authorized lookup tool
+### Lookup tool
 
 Work priority 1 first. Enrich in batches of 5 to 10 where supported; reduce for budget/capacity. Pass full names, organization, confirmed domain, and profile URL where supported. Check actual billing; never assume misses are free. Reserve the maximum possible batch cost before submitting it.
 
@@ -134,25 +183,41 @@ Count hard bounces once per evidenced failed address. Separate observed totals f
 
 ## 6. Write and create drafts
 
-Use this identical cold subject with the configured values:
+Use this identical cold subject, with `{standing}` as the class year or standing (for example `Sophomore`):
 
 ```text
-{full_name} {school} {standing} Reaching Out
+Michigan {standing} Reaching Out
 ```
 
 Use the HTML below. Substitute every field, HTML-escape text, and safely encode attributes. Begin with the literal characters `<div>Hi`, without leading whitespace, a blank line, or `<br>`. Use div lines, never p tags.
 
 ```html
-<div>Hi {first_name},</div><div><br></div><div>My name is {full_name}. I'm a {standing} at {school}, studying {focus}.</div><div><br></div><div>{personalized_paragraph}</div><div><br></div><div>If you'd be open to a coffee chat, I'd really appreciate the chance to connect.</div><div><br></div><div>Best,</div><div>{full_name}</div><div>{school} | {degree_and_year}</div><div>{university_and_city}</div><div>{email} | {phone} | <a href="{linkedin_url}">LinkedIn</a></div>
+<div>Hi {first_name},</div><div><br></div><div>I hope you're doing well! My name is {full_name}, and I'm a {standing} at the University of Michigan studying {focus}. {personalized_sentence}</div><div><br></div><div>I'd love to hear about your path and what your work at {firm} looks like day to day. Would you be open to a short call in the coming weeks? I'm happy to work around your schedule.</div><div><br></div><div>{resume_sentence} Thanks for your time, and I hope to hear from you soon.</div><div><br></div><div>Best,</div><div>{full_name}</div>
 ```
 
-Open personalization with a sourced fact about the person; lead with the shared school connection for confirmed alumni. Reference their firm/role and exact target program naturally. Keep to three or four sentences maximum, fewer when evidence is thin. Do not repeat the standing/school introduction. Avoid `I came across your profile`, em dashes, flattery, and proposed chat lengths, including `quick`.
+Fill `{personalized_sentence}` with one or two sentences built only from evidence actually read. Make them fit the organization.
 
-Support every career, biographical, and program claim with evidence actually read. Never infer a promotion, move, team, or project from snippets. When only program facts are known, write a shorter paragraph about the confirmed program. Keep sources in the report, not the email.
+- Large firm: name the practice, program, or group and why it interests the sender, or the shared Michigan connection for a confirmed alum.
+- Startup or small company: name what the company builds or the stage it is at, and the role or area the contact works in.
+- Thin evidence: write one short sentence about the confirmed firm or program, and nothing more.
+
+Fill `{resume_sentence}` by the first case that applies:
+
+1. The draft tool supports attachments and the configuration supplies a resume file: attach it and write `I've attached my resume in case it's helpful.`
+2. The configuration supplies `resume_link`: write `My resume is here in case it's helpful: <a href="{resume_link}">resume</a>.`
+3. Neither: omit the sentence and its own spacing, and list the draft in the report as needing a manual resume attachment.
+
+Never write that a resume is attached unless an attachment was actually added.
+
+Keep the body short and warm. Do not repeat the introduction in the personalized sentence. Avoid `I came across your profile`, em dashes, and flattery. The wording `short call` is owner-mandated and allowed. Do not propose any other chat length and do not use `quick`. Do not change the template wording beyond the fields above. The signature is the name only unless the configuration adds a contact line.
+
+Support every career, biographical, and program claim with evidence actually read. Never infer a promotion, move, team, or project from snippets. When only program facts are known, write a shorter personalized sentence about the confirmed program. Keep sources in the report, not the email.
+
+Before each batch of up to 10 drafts, refresh the scoped sent and draft searches for the firms in that batch. Inside the batch, check each candidate against an in-run ledger that adds every draft created so far in this run, so two candidates can never collide. Re-run the scoped duplicate search once at the end of the run and report any collision.
 
 Immediately before each draft:
 
-1. Refresh relevant recipient sent/draft records. Check exclusions, the merged list, identity aliases, and remaining cap.
+1. Check exclusions, the merged list including the in-run ledger, identity aliases, and remaining cap.
 2. Confirm person/address alignment, eligibility, and address evidence.
 3. Confirm draft authorization, subject consistency, HTML prefix, and no unresolved cold-template tokens.
 4. Create with supported recipient, subject, HTML, and threading fields. Adapt to actual schemas; never call send or schedule-send.
@@ -188,7 +253,7 @@ Write `outreach-run-YYYY-MM-DD.md` to the configured destination through its sup
 
 Use short active sentences, no em dashes, and no Markdown asterisks. Include:
 
-1. Unanswered introduction/referral offers and actions, then run status and blockers.
+1. Unanswered introduction/referral offers and actions, then run status and blockers. State quota progress first: confirmed cold drafts out of `draft_target`. If short, list the shortfall by cause (cap, exhausted search, budget, address failures, eligibility rejections, sign-in block, tool failure) with counts, and the specific owner changes that would close it next run.
 2. Timestamp, configuration ID, report location, and tomorrow's date/time zone.
 3. Warm replies, thread/draft IDs, action evidence, and every placeholder.
 4. Cold schedule, draft IDs, target IDs, profile/source URLs, and address provenance.
